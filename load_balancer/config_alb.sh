@@ -31,5 +31,5 @@ cat variable.tf
 
 # Using Terraform to create ALB infrastructure
 
-terraform init && terraform apply --auto-approve
+terraform init && terraform "${option}" --auto-approve
 
