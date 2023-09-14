@@ -13,19 +13,19 @@ e=$(aws ec2 describe-subnets --region ap-south-1 --filters "Name=tag:Name,Values
 # Below values are replaced the variable.tf
 echo "$b"
 
-sed "s/instance_id/$b/g" variable.tf
+sed -i "s/instance_id/$b/g" variable.tf
 
 echo "$c"
 
-sed "s/vpc_id/$c/g" variable.tf
+sed -i "s/vpc_id/$c/g" variable.tf
 
 echo "$d"
 
-sed "s/subnet_1/$d/g" variable.tf
+sed -i "s/subnet_1/$d/g" variable.tf
 
 echo "$e"
 
-sed "s/subnet_2/$e/g" variable.tf
+sed -i "s/subnet_2/$e/g" variable.tf
 
 cat variable.tf
 
