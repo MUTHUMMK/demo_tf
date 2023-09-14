@@ -4,7 +4,7 @@
   become: yes
   tasks:  
   vars:
-    
+  
     default_container_name: mmk
     default_container_image: muthummkdh/nginx:v1.2
 #    default_container_command: docker run
