@@ -5,8 +5,8 @@
   tasks:  
   vars:
   
-    default_container_name: muthummkdh/hackathon:$BUILD_NUMBER
-    default_container_image: muthummkdh/hackathon:$BUILD_NUMBER
+    default_container_name: muthummkdh/hackathon:20
+    default_container_image: muthummkdh/hackathon:20
 #    default_container_command: docker run
     port: 5000:5000
 
