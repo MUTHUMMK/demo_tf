@@ -2,10 +2,10 @@
 # this values replaced by shell script
 
 variable "instance_id" {
-  default = "instance_id"
+  default = "instance-id"
 }
 variable "vpc_id" {
-  default = "vpc_id"
+  default = "vpc-id"
 }
 variable "subnet_ids" {
  default = ["subnet_1","subnet_2"]
@@ -59,6 +59,6 @@ variable "third_port" {
 }
 variable "alb_sg_tag" {
   default = {
-    Name = "alb sg"
+    Name = "alb_sg"
   }
 }
