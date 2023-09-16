@@ -59,6 +59,6 @@ variable "third_port" {
 }
 variable "alb_sg_tag" {
   default = {
-    Name = "alb_sg"
+    Name = "alb-sg"
   }
 }
