@@ -26,7 +26,7 @@ resource "aws_launch_template" "new-template" {
               EOF */              
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [var.alb_sg]
+    security_groups             = [var.alb sg]
   }
 }
 
@@ -79,7 +79,7 @@ resource "aws_lb" "load-balancer" {
   name               = "load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [var.alb_sg]
+  security_groups    = [var.alb sg]
   subnets            = var.subnet_ids
 }
 
