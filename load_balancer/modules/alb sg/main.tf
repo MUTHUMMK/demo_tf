@@ -1,5 +1,5 @@
-resource "aws_security_group" "alb_sg" {
-  name        = "alb_sg"
+resource "aws_security_group" "alb sg" {
+  name        = "alb sg"
   description = "Allow TLS inbound traffic"
   vpc_id      = var.vpc_id
 
