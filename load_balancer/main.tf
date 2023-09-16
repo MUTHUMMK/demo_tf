@@ -13,7 +13,7 @@ module "alb sg" {
 module "alb" {
   source = "./modules/alb"
 
-  alb_sg = module.alb sg.alb sg # alb sg output to get sg id
+  alb sg = module.alb sg.alb sg # alb sg output to get sg id
 
   instance_id = var.instance_id
   vpc_id      = var.vpc_id
