@@ -1,6 +1,6 @@
 
-module "alb_sg" {
-  source = "./modules/alb_sg"
+module "alb sg" {
+  source = "./modules/alb sg"
 
   vpc_id = var.vpc_id
 
@@ -13,7 +13,7 @@ module "alb_sg" {
 module "alb" {
   source = "./modules/alb"
 
-  alb_sg = module.alb_sg.alb_sg # alb_sg output to get sg id
+  alb_sg = module.alb sg.alb sg # alb sg output to get sg id
 
   instance_id = var.instance_id
   vpc_id      = var.vpc_id
