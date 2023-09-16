@@ -1,4 +1,4 @@
-terraform {
+/*terraform {
   backend "s3" {
     bucket         = "terraform-vpc-alb-statefile"
     key            = "alb-state-tf"                 # Change this to a unique name for each configuration
@@ -7,3 +7,4 @@ terraform {
     dynamodb_table = "dynamoDB-statelocktf"          # Optional: Use DynamoDB for locking
   }
 }
+*/
