@@ -13,11 +13,11 @@ e=$(aws ec2 describe-subnets --region ap-south-1 --filters "Name=tag:Name,Values
 # Below values are replaced the variable.tf
 echo "$b"
 
-sed -i "s/instance_id/$b/g" variable.tf
+sed -i "s/instance-id/$b/g" variable.tf
 
 echo "$c"
 
-sed -i "s/vpc_id/$c/g" variable.tf
+sed -i "s/vpc-id/$c/g" variable.tf
 
 echo "$d"
 
@@ -31,5 +31,5 @@ cat variable.tf
 
 # Using Terraform to create ALB infrastructure
 
-terraform init && terraform "${option}" --auto-approve
+terraform init && terraform plan && terraform "${option}" --auto-approve 
 
