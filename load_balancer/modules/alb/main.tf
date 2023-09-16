@@ -14,11 +14,11 @@ resource "aws_launch_template" "new-template" {
   instance_type = var.template_instance_type
   key_name      = var.template_key_name
 
- /* user_data = <<-EOF
+  user_data = <<-EOF
               #!bin/bash
               sudo systemctl restart docker
               sudo docker restart $(sudo docker ps -aq) 
-              EOF */
+              EOF 
  /* user_data = <<-EOF
               #!bin/bash
               sudo apt update 
