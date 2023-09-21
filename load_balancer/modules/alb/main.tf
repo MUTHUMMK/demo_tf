@@ -4,6 +4,7 @@
 resource "aws_ami_from_instance" "My_ami" {
   name               = "terraform-ami"
   source_instance_id = var.instance_id
+  #snapshot_without_reboot = "true"
   tags               = var.template_tag
 }
 
@@ -13,39 +14,18 @@ resource "aws_launch_template" "new-template" {
   image_id      = aws_ami_from_instance.My_ami.id
   instance_type = var.template_instance_type
   key_name      = var.template_key_name
-
- /* user_data = <<-EOF
+ 
+  user_data = <<-EOF
               #!bin/bash
               sudo systemctl restart docker
               sudo docker restart $(sudo docker ps -aq) 
-              EOF */
- /* user_data = <<-EOF
-              #!bin/bash
-              sudo apt update 
-              sudo docker restart $(sudo docker ps -aq) 
-              EOF */              
+              EOF            
+             
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [var.albsg]
+    security_groups             = [var.alb_sg]
   }
 }
-
-/*
-# create autoscaling group
-resource "aws_autoscaling_group" "autoscaling" {
-  count             = length(var.public_subnet_cidrs)
-  cidr_block        = var.public_subnet_cidrs[count.index]
-  availability_zones = data.aws_availability_zones.az.names[count.index]
-  desired_capacity   = var.as_capacity
-  max_size           = var.as_max_size
-  min_size           = var.as_min_size
-
-  launch_template {
-    id      = aws_launch_template.new-template.id
-    version = "$Latest"
-  }
-}
-*/
 
 # create Target group
 resource "aws_lb_target_group" "target_group" {
@@ -73,13 +53,12 @@ resource "aws_lb_target_group_attachment" "tg_attachment" {
 }
 
 
-
 # create Load balancer
 resource "aws_lb" "load-balancer" {
   name               = "load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [var.albsg]
+  security_groups    = [var.alb_sg]
   subnets            = var.subnet_ids
 }
 
@@ -95,3 +74,91 @@ resource "aws_lb_listener" "alb_listener" {
   }
 }
 
+# create autoscaling group
+resource "aws_autoscaling_group" "autoscaling-mmk" {
+  name = "autoscaling-mmk"
+  count             = length(var.public_subnet_cidrs)
+  #cidr_block        = var.public_subnet_cidrs[count.index]
+  #availability_zones = data.aws_availability_zones.az.names[count.index]
+  desired_capacity   = var.as_capacity
+  max_size           = var.as_max_size
+  min_size           = var.as_min_size
+  health_check_grace_period = 300
+  #health_check_type = var.as_health_check_type # health check type deault EC2 (or) ELB
+  vpc_zone_identifier =  [var.public_subnet_cidrs[count.index]]
+  
+  launch_template {
+    id      = aws_launch_template.new-template.id
+    version = "$Latest"
+  }
+}
+
+resource "aws_autoscaling_attachment" "example" {	   # We create two auto-scaling attachment for the two instance - This is instance 1
+  autoscaling_group_name = "aws_autoscaling_group.autoscaling-mmk.id"  # 1st autoscaling group id
+  lb_target_group_arn    = aws_lb_target_group.target_group.arn
+}
+
+# auto scaling up policy
+
+resource "aws_autoscaling_policy" "scale_up" {
+  name = "var.asscale_up_tag"
+  autoscaling_group_name = "aws_autoscaling_group.autoscaling-mmk.name"
+  adjustment_type = "ChangeInCapacity"
+  scaling_adjustment = "1"    # increase instance by 1
+  cooldown = "300"
+  policy_type = "SimpleScaling"
+}
+
+# scale up alarm
+
+# alarm will trigger the ASG ploicy (scale/down) based on the metric (CPUUtilization)
+
+resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
+  alarm_name = "var.asscale_up_alarm_tag"
+  alarm_description = "asg-scale-up-CPU-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods = "2"
+  metric_name = "CPUUtilization"
+  namespace = "AWS/EC2"
+  period = "120"
+  statistic = "Average"
+  threshold = "40"    # new instance will be created once CPU utilization is higher than 30 %
+  dimensions = {
+     "AutoScalingGroupName" = "aws_autoscaling_group.autoscaling-mmk.name"
+  }
+  actions_enabled = true
+  alarm_actions = [aws_autoscaling_policy.scale_up.arn]
+
+}
+
+
+# auto scaling down policy
+
+resource "aws_autoscaling_policy" "scale_down" {
+  name = "var.asscale_down_tag"
+  autoscaling_group_name = "aws_autoscaling_group.autoscaling-mmk.name"
+  adjustment_type = "ChangeInCapacity"
+  scaling_adjustment = "-1"    # decreasing instance by 1
+  cooldown = "300"
+  policy_type = "SimpleScaling"
+}
+
+# scale down alarm
+
+resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
+  alarm_name = "var.asscale_down_alarm_tag"
+  alarm_description = "asg-scale-down-CPU-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods = "2"
+  metric_name = "CPUUtilization"
+  namespace = "AWS/EC2"
+  period = "120"
+  statistic = "Average"
+  threshold = "5"    # instance will be scaling down when CPU utilization is lower than 5 %
+  dimensions = {
+     "AutoScalingGroupName" = "aws_autoscaling_group.autoscaling-mmk.name"
+  }
+  actions_enabled = true
+  alarm_actions = [aws_autoscaling_policy.scale_down.arn]
+
+}
