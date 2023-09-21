@@ -162,6 +162,6 @@ resource "aws_lb_listener" "alb_listener" {
 
 
 resource "aws_autoscaling_attachment" "example" {	   # We create two auto-scaling attachment for the two instance - This is instance 1
-  autoscaling_group_name = aws_autoscaling_group.this.id  # 1st autoscaling group id
+  autoscaling_group_name = aws_autoscaling_group.autoscaling.id  # 1st autoscaling group id
   lb_target_group_arn    = aws_lb_target_group.target_group.arn
 }
